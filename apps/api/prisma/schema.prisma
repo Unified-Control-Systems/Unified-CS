@@ -63,6 +63,7 @@ model User {
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
 
   roles         UserRole[]
+  sessions      Session[]
   auditLogs     AuditLog[]
   notifications Notification[]
   uploadedFiles File[]
@@ -75,6 +76,25 @@ model User {
   @@index([organizationId, status])
   @@index([branchId])
   @@index([departmentId])
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  refreshTokenHash String
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
 }
 
 model Role {
