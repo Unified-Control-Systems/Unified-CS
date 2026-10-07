@@ -1,13 +1,31 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import type { Request } from 'express';
 
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
-import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { LogoutDto } from './dto/logout.dto.js';
+import { RefreshTokenDto } from './dto/refresh-token.dto.js';
+import {
+  AuthenticatedUser,
+  JwtAuthGuard,
+} from './guards/jwt-auth.guard.js';
+
+interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+  ) {}
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
@@ -15,12 +33,25 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ) {
     return this.authService.refresh(refreshTokenDto);
   }
 
   @Post('logout')
   async logout(@Body() logoutDto: LogoutDto) {
-  return this.authService.logout(logoutDto);
-}
+    return this.authService.logout(logoutDto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getCurrentUser(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return {
+      userId: request.user.sub,
+      organizationId: request.user.organizationId,
+    };
+  }
 }
