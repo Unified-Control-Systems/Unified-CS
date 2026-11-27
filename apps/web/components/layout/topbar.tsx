@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Menu,
@@ -17,12 +16,7 @@ interface TopbarProps {
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <header className="topbar">
@@ -46,11 +40,13 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <div className="topbar-right">
         <label className="global-search">
           <Search size={17} className="muted-icon" />
+
           <input
             type="search"
             placeholder="Search anything..."
             aria-label="Search"
           />
+
           <span className="search-shortcut">
             <Command size={11} /> K
           </span>
@@ -61,10 +57,16 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <button
           type="button"
           className="icon-button theme-toggle"
-          aria-label="Toggle theme"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label={
+            resolvedTheme === "dark"
+              ? "Switch to light theme"
+              : "Switch to dark theme"
+          }
+          onClick={() =>
+            setTheme(resolvedTheme === "dark" ? "light" : "dark")
+          }
         >
-          {mounted && theme === "dark" ? (
+          {resolvedTheme === "dark" ? (
             <Sun size={19} />
           ) : (
             <Moon size={19} />
