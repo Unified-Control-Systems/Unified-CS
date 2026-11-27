@@ -1,119 +1,123 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Users,
+  GitBranch,
+  Building2,
+  ShieldCheck,
+  ArrowUpRight,
+  ArrowDownRight,
   IndianRupee,
   ShoppingCart,
   Package,
-  ArrowUpRight,
-  ArrowDownRight,
-  Plus,
   Download,
-  Receipt,
   UserPlus,
-  ShoppingBag,
-  ClipboardCheck,
+  Activity,
+  Bell,
 } from "lucide-react";
 
-import { AppShell } from "@/components/layout/app-shell";
+import {
+  AppShell,
+  type DashboardUser,
+} from "@/components/layout/app-shell";
 
-const metrics = [
-  {
-    label: "Total Revenue",
-    value: "₹12,84,500",
-    change: "+12.8%",
-    description: "Compared to last month",
-    positive: true,
-    icon: IndianRupee,
-  },
-  {
-    label: "Total Employees",
-    value: "248",
-    change: "+4.2%",
-    description: "Compared to last month",
-    positive: true,
-    icon: Users,
-  },
-  {
-    label: "Total Orders",
-    value: "1,284",
-    change: "+8.4%",
-    description: "Compared to last month",
-    positive: true,
-    icon: ShoppingCart,
-  },
-  {
-    label: "Low Stock Items",
-    value: "18",
-    change: "-3.1%",
-    description: "Compared to last month",
-    positive: false,
-    icon: Package,
-  },
-];
+interface DashboardOverview {
+  organization: {
+    id: string;
+    name: string;
+  };
+  currentUser: DashboardUser & {
+    id: string;
+  };
+  metrics: {
+    users: {
+      total: number;
+      active: number;
+      invited: number;
+      suspended: number;
+    };
+    branches: {
+      total: number;
+      active: number;
+    };
+    departments: {
+      total: number;
+      active: number;
+    };
+    roles: {
+      total: number;
+    };
+  };
+  recentActivity: {
+    id: string;
+    action: string;
+    entity: string;
+    entityId: string | null;
+    metadata: unknown;
+    createdAt: string;
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    } | null;
+  }[];
+  unreadNotifications: number;
+}
 
-const activities = [
-  {
-    title: "New employee registered",
-    detail: "Employee onboarding completed",
-    time: "10 minutes ago",
-    icon: UserPlus,
-  },
-  {
-    title: "Sales order created",
-    detail: "Order #SO-2026-1284",
-    time: "35 minutes ago",
-    icon: ShoppingBag,
-  },
-  {
-    title: "Purchase request submitted",
-    detail: "Request #PR-2026-042",
-    time: "1 hour ago",
-    icon: Receipt,
-  },
-  {
-    title: "Inventory approval pending",
-    detail: "Warehouse stock adjustment",
-    time: "2 hours ago",
-    icon: ClipboardCheck,
-  },
-];
+interface Metric {
+  label: string;
+  value: string;
+  description: string;
+  icon: typeof Users;
+  positive?: boolean;
+  change?: string;
+}
 
-const orders = [
-  {
-    id: "SO-2026-1284",
-    customer: "Acme Technologies",
-    date: "26 Nov 2026",
-    amount: "₹84,500",
-    status: "Completed",
-  },
-  {
-    id: "SO-2026-1283",
-    customer: "Global Solutions",
-    date: "26 Nov 2026",
-    amount: "₹42,000",
-    status: "Processing",
-  },
-  {
-    id: "SO-2026-1282",
-    customer: "Vertex Industries",
-    date: "25 Nov 2026",
-    amount: "₹1,24,800",
-    status: "Pending",
-  },
-  {
-    id: "SO-2026-1281",
-    customer: "Nexus Enterprises",
-    date: "25 Nov 2026",
-    amount: "₹63,200",
-    status: "Completed",
-  },
-];
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const difference = date.getTime() - Date.now();
 
-function DashboardMetric({
-  metric,
-}: {
-  metric: (typeof metrics)[number];
-}) {
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  const minutes = Math.round(difference / 60000);
+  const hours = Math.round(minutes / 60);
+  const days = Math.round(hours / 24);
+
+  const formatter = new Intl.RelativeTimeFormat("en", {
+    numeric: "auto",
+  });
+
+  if (Math.abs(minutes) < 60) {
+    return formatter.format(minutes, "minute");
+  }
+
+  if (Math.abs(hours) < 24) {
+    return formatter.format(hours, "hour");
+  }
+
+  return formatter.format(days, "day");
+}
+
+function formatActivityTitle(action: string, entity: string): string {
+  const formattedAction = action
+    .replace(/[_-]/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+
+  const formattedEntity = entity
+    .replace(/[_-]/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+
+  return `${formattedAction} · ${formattedEntity}`;
+}
+
+function DashboardMetric({ metric }: { metric: Metric }) {
   const Icon = metric.icon;
 
   return (
@@ -129,15 +133,16 @@ function DashboardMetric({
       <div className="metric-value">{metric.value}</div>
 
       <div className="metric-bottom">
-        <span className="metric-change">
-          {metric.positive ? (
-            <ArrowUpRight size={12} className="inline" />
-          ) : (
-            <ArrowDownRight size={12} className="inline" />
-          )}
-
-          {metric.change}
-        </span>
+        {metric.change && (
+          <span className="metric-change">
+            {metric.positive ? (
+              <ArrowUpRight size={12} className="inline" />
+            ) : (
+              <ArrowDownRight size={12} className="inline" />
+            )}
+            {metric.change}
+          </span>
+        )}
 
         <span>{metric.description}</span>
       </div>
@@ -145,135 +150,112 @@ function DashboardMetric({
   );
 }
 
-function DashboardChart() {
-  const revenue = [42, 57, 48, 72, 63, 84, 69, 92, 77, 100, 87, 95];
-
-  const expenses = [29, 38, 32, 46, 43, 53, 49, 62, 55, 68, 61, 70];
-
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
+function UnavailablePanel({
+  title,
+  subtitle,
+  icon: Icon,
+}: {
+  title: string;
+  subtitle: string;
+  icon: typeof IndianRupee;
+}) {
   return (
     <section className="panel">
       <div className="panel-header">
         <div>
-          <h2 className="panel-title">Financial Overview</h2>
-
-          <p className="panel-subtitle">
-            Revenue and expenses over the year
-          </p>
+          <h2 className="panel-title">{title}</h2>
+          <p className="panel-subtitle">{subtitle}</p>
         </div>
-
-        <select
-          className="select-control"
-          defaultValue="year"
-          aria-label="Financial chart period"
-        >
-          <option value="year">This year</option>
-          <option value="month">This month</option>
-        </select>
       </div>
 
-      <div className="panel-body">
-        <div className="flex flex-wrap items-center gap-4 mb-3">
-          <span className="flex items-center gap-2 text-[10px] text-[var(--foreground-secondary)]">
-            <span className="h-2 w-2 rounded-full bg-[var(--primary)]" />
-            Revenue
-          </span>
-
-          <span className="flex items-center gap-2 text-[10px] text-[var(--foreground-secondary)]">
-            <span className="h-2 w-2 rounded-full bg-[#93c5fd]" />
-            Expenses
-          </span>
+      <div className="panel-body flex min-h-48 flex-col items-center justify-center gap-3 text-center">
+        <div className="metric-icon">
+          <Icon size={20} />
         </div>
 
-        <div className="chart-placeholder">
-          <div className="chart-bars">
-            {revenue.map((height, index) => (
-              <div className="chart-bar-group" key={months[index]}>
-                <div
-                  className="chart-bar chart-bar-secondary"
-                  style={{ height: `${expenses[index]}%` }}
-                />
+        <p className="text-sm font-medium">
+          No data available yet
+        </p>
 
-                <div
-                  className="chart-bar"
-                  style={{ height: `${height}%` }}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="chart-labels">
-            {months.map((month) => (
-              <span key={month}>{month}</span>
-            ))}
-          </div>
-        </div>
+        <p className="text-xs text-[var(--foreground-secondary)]">
+          This information will appear when the relevant module is implemented
+          and contains records.
+        </p>
       </div>
     </section>
   );
 }
 
-function RecentActivity() {
+function RecentActivity({
+  activities,
+}: {
+  activities: DashboardOverview["recentActivity"];
+}) {
   return (
     <section className="panel">
       <div className="panel-header">
         <div>
           <h2 className="panel-title">Recent Activity</h2>
-
           <p className="panel-subtitle">
-            Latest workspace updates
+            Latest organization audit records
           </p>
         </div>
-
-        <button type="button" className="button">
-          View all
-        </button>
       </div>
 
       <div className="panel-body">
-        <div className="activity-list">
-          {activities.map((activity) => {
-            const Icon = activity.icon;
-
-            return (
-              <div className="activity-item" key={activity.title}>
+        {activities.length === 0 ? (
+          <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-center">
+            <Activity
+              size={22}
+              className="text-[var(--foreground-secondary)]"
+            />
+            <p className="text-sm font-medium">No activity recorded</p>
+            <p className="text-xs text-[var(--foreground-secondary)]">
+              Organization activity will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="activity-list">
+            {activities.map((activity) => (
+              <div className="activity-item" key={activity.id}>
                 <div className="activity-icon">
-                  <Icon size={15} />
+                  <Activity size={15} />
                 </div>
 
                 <div className="activity-copy">
                   <span className="activity-title">
-                    {activity.title}
+                    {formatActivityTitle(
+                      activity.action,
+                      activity.entity,
+                    )}
                   </span>
 
                   <span className="activity-time">
-                    {activity.detail}
+                    {activity.user
+                      ? `${activity.user.firstName} ${activity.user.lastName}`
+                      : "System"}
                   </span>
 
                   <span className="activity-time">
-                    {activity.time}
+                    {formatRelativeTime(activity.createdAt)}
                   </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+function DashboardChart() {
+  return (
+    <UnavailablePanel
+      title="Financial Overview"
+      subtitle="Revenue and expenses over time"
+      icon={IndianRupee}
+    />
   );
 }
 
@@ -283,101 +265,218 @@ function RecentOrders() {
       <div className="panel-header">
         <div>
           <h2 className="panel-title">Recent Sales Orders</h2>
-
           <p className="panel-subtitle">
-            Overview of the latest sales transactions
+            Latest sales transactions
           </p>
         </div>
-
-        <button type="button" className="button">
-          View all orders
-        </button>
       </div>
 
-      <div className="table-wrapper">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+      <div className="panel-body flex min-h-36 flex-col items-center justify-center gap-2 text-center">
+        <ShoppingCart
+          size={22}
+          className="text-[var(--foreground-secondary)]"
+        />
 
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
-                <td>{order.customer}</td>
-                <td>{order.date}</td>
-                <td>{order.amount}</td>
+        <p className="text-sm font-medium">No sales orders available</p>
 
-                <td>
-                  <span
-                    className={`status-badge ${
-                      order.status === "Completed"
-                        ? "status-completed"
-                        : order.status === "Pending"
-                          ? "status-pending"
-                          : "status-processing"
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <p className="text-xs text-[var(--foreground-secondary)]">
+          Sales orders will appear here after the Sales module is implemented.
+        </p>
       </div>
     </section>
   );
 }
 
 export default function DashboardPage() {
-  return (
-    <AppShell>
-      <div>
+  const [dashboard, setDashboard] =
+    useState<DashboardOverview | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch("/api/dashboard/overview", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (response.status === 401) {
+          window.location.replace("/login");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Unable to load dashboard information.");
+        }
+
+        const data: DashboardOverview = await response.json();
+
+        if (!cancelled) {
+          setDashboard(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "An unexpected error occurred.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadDashboard();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <AppShell>
         <div className="page-heading">
           <div>
             <h1 className="page-title">Dashboard</h1>
-
             <p className="page-description">
-              Welcome back. Heres whats happening across your organization.
+              Loading your organization overview...
+            </p>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (error || !dashboard) {
+    return (
+      <AppShell>
+        <div className="page-heading">
+          <div>
+            <h1 className="page-title">Dashboard</h1>
+            <p className="page-description">
+              {error ?? "Dashboard data is unavailable."}
             </p>
           </div>
 
-          <div className="page-actions">
-            <button type="button" className="button">
-              <Download size={14} />
-              Export
-            </button>
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      </AppShell>
+    );
+  }
 
-            <button type="button" className="button button-primary">
-              <Plus size={15} />
-              Quick action
-            </button>
+  const { metrics } = dashboard;
+
+  const dashboardMetrics: Metric[] = [
+    {
+      label: "Total Users",
+      value: metrics.users.total.toLocaleString("en-IN"),
+      description: `${metrics.users.active} active · ${metrics.users.invited} invited`,
+      icon: Users,
+    },
+    {
+      label: "Total Branches",
+      value: metrics.branches.total.toLocaleString("en-IN"),
+      description: `${metrics.branches.active} active branches`,
+      icon: GitBranch,
+    },
+    {
+      label: "Total Departments",
+      value: metrics.departments.total.toLocaleString("en-IN"),
+      description: `${metrics.departments.active} active departments`,
+      icon: Building2,
+    },
+    {
+      label: "Total Roles",
+      value: metrics.roles.total.toLocaleString("en-IN"),
+      description: "Configured organization roles",
+      icon: ShieldCheck,
+    },
+  ];
+
+  return (
+    <AppShell
+      currentUser={dashboard.currentUser}
+      unreadNotifications={dashboard.unreadNotifications}
+    >
+      <div className="page-heading">
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+
+          <p className="page-description">
+            Welcome back, {dashboard.currentUser.firstName}. Heres whats
+            happening at {dashboard.organization.name}.
+          </p>
+        </div>
+
+        <div className="page-actions">
+          <span className="button">
+            <Bell size={14} />
+            {dashboard.unreadNotifications} unread
+          </span>
+        </div>
+      </div>
+
+      <div className="metrics-grid">
+        {dashboardMetrics.map((metric) => (
+          <DashboardMetric key={metric.label} metric={metric} />
+        ))}
+      </div>
+
+      <div className="dashboard-grid">
+        <DashboardChart />
+        <RecentActivity activities={dashboard.recentActivity} />
+      </div>
+
+      <RecentOrders />
+
+      <section className="panel mt-4">
+        <div className="panel-header">
+          <div>
+            <h2 className="panel-title">Organization Overview</h2>
+            <p className="panel-subtitle">
+              Current organization statistics
+            </p>
           </div>
         </div>
 
-        <div className="metrics-grid">
-          {metrics.map((metric) => (
-            <DashboardMetric
-              key={metric.label}
-              metric={metric}
-            />
-          ))}
-        </div>
+        <div className="panel-body grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <p className="metric-label">Active users</p>
+            <p className="text-lg font-semibold">
+              {metrics.users.active}
+            </p>
+          </div>
 
-        <div className="dashboard-grid">
-          <DashboardChart />
-          <RecentActivity />
-        </div>
+          <div>
+            <p className="metric-label">Invited users</p>
+            <p className="text-lg font-semibold">
+              {metrics.users.invited}
+            </p>
+          </div>
 
-        <RecentOrders />
-      </div>
+          <div>
+            <p className="metric-label">Suspended users</p>
+            <p className="text-lg font-semibold">
+              {metrics.users.suspended}
+            </p>
+          </div>
+        </div>
+      </section>
     </AppShell>
   );
 }

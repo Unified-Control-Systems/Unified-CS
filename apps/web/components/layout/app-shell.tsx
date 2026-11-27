@@ -1,14 +1,27 @@
+
 "use client";
 
 import { useState, type ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
-interface AppShellProps {
-  children: ReactNode;
+export interface DashboardUser {
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
-export function AppShell({ children }: AppShellProps) {
+interface AppShellProps {
+  children: ReactNode;
+  currentUser?: DashboardUser;
+  unreadNotifications?: number;
+}
+
+export function AppShell({
+  children,
+  currentUser,
+  unreadNotifications = 0,
+}: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -19,7 +32,11 @@ export function AppShell({ children }: AppShellProps) {
       />
 
       <div className="app-main">
-        <Topbar onMenuClick={() => setMobileOpen(true)} />
+        <Topbar
+          onMenuClick={() => setMobileOpen(true)}
+          currentUser={currentUser}
+          unreadNotifications={unreadNotifications}
+        />
 
         <main className="main-content">{children}</main>
       </div>
