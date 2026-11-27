@@ -411,6 +411,7 @@ export default function DashboardPage() {
   return (
     <AppShell
       currentUser={dashboard.currentUser}
+      organizationName={dashboard.organization.name}
       unreadNotifications={dashboard.unreadNotifications}
     >
       <div className="page-heading">

@@ -14,12 +14,14 @@ export interface DashboardUser {
 interface AppShellProps {
   children: ReactNode;
   currentUser?: DashboardUser;
+  organizationName?: string;
   unreadNotifications?: number;
 }
 
 export function AppShell({
   children,
   currentUser,
+  organizationName,
   unreadNotifications = 0,
 }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,6 +31,8 @@ export function AppShell({
       <Sidebar
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
+        currentUser={currentUser}
+        organizationName={organizationName}
       />
 
       <div className="app-main">

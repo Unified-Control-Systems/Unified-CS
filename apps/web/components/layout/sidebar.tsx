@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  UserRound,
   Contact,
   Package,
   ShoppingCart,
@@ -17,12 +16,17 @@ import {
   Building2,
   Boxes,
   ShieldCheck,
+  UserRound,
   X,
 } from "lucide-react";
+
+import type { DashboardUser } from "./app-shell";
 
 interface SidebarProps {
   mobileOpen: boolean;
   onClose: () => void;
+  currentUser?: DashboardUser;
+  organizationName?: string;
 }
 
 const navigation = [
@@ -67,8 +71,21 @@ const navigation = [
   },
 ];
 
-export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
+export function Sidebar({
+  mobileOpen,
+  onClose,
+  currentUser,
+  organizationName,
+}: SidebarProps) {
   const pathname = usePathname();
+
+  const fullName = currentUser
+    ? `${currentUser.firstName} ${currentUser.lastName}`
+    : "Loading profile";
+
+  const initials = currentUser
+    ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+    : "—";
 
   return (
     <>
@@ -102,26 +119,31 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <button type="button" className="organization-switcher">
+        <div className="organization-switcher">
           <div className="organization-icon">
             <Building2 size={17} />
           </div>
 
           <div className="organization-copy">
             <span className="organization-label">WORKSPACE</span>
-            <span className="organization-name">Demo Organization</span>
+            <span className="organization-name">
+              {organizationName ?? "Loading organization"}
+            </span>
           </div>
 
           <ChevronDown size={16} className="muted-icon" />
-        </button>
+        </div>
 
         <nav className="sidebar-navigation">
           {navigation.map((section) => (
             <div className="navigation-section" key={section.label}>
-              <p className="navigation-section-label">{section.label}</p>
+              <p className="navigation-section-label">
+                {section.label}
+              </p>
 
               {section.items.map((item) => {
                 const Icon = item.icon;
+
                 const active =
                   item.href === "/"
                     ? pathname === "/"
@@ -148,12 +170,18 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
         <div className="sidebar-footer">
           <div className="sidebar-footer-icon">
-            <UserRound size={18} />
+            {currentUser ? (
+              <span className="sidebar-initials">{initials}</span>
+            ) : (
+              <UserRound size={18} />
+            )}
           </div>
 
           <div className="sidebar-footer-copy">
-            <span className="sidebar-footer-title">System Administrator</span>
-            <span className="sidebar-footer-caption">Administrator</span>
+            <span className="sidebar-footer-title">{fullName}</span>
+            <span className="sidebar-footer-caption">
+              {currentUser?.email ?? "Loading..."}
+            </span>
           </div>
 
           <span className="online-indicator" />

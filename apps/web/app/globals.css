@@ -445,6 +445,239 @@ a {
   }
 }
 
+
+/* Topbar dropdown positioning */
+.topbar-popover-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-popover {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  z-index: 100;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+  color: var(--foreground);
+  overflow: hidden;
+}
+
+.notification-popover {
+  width: 360px;
+  max-width: calc(100vw - 24px);
+}
+
+.profile-popover {
+  width: 260px;
+}
+
+.popover-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.popover-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popover-heading strong {
+  font-size: 13px;
+}
+
+.popover-heading span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.popover-close {
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.notification-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.notification-item:last-child {
+  border-bottom: 0;
+}
+
+.notification-unread {
+  background: var(--primary-soft, rgba(59, 130, 246, 0.07));
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.notification-content p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.notification-time {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.notification-read-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.notification-read-button:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.notification-read-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.popover-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 34px 16px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.popover-empty strong {
+  color: var(--foreground);
+  font-size: 12px;
+}
+
+.popover-error {
+  padding: 13px;
+  color: var(--destructive, #ef4444);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.popover-error button {
+  display: block;
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.popover-user {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px;
+}
+
+.popover-user > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.popover-user strong {
+  font-size: 12px;
+}
+
+.popover-user span {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.popover-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.popover-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.popover-action:hover {
+  background: var(--muted);
+}
+
+.popover-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.popover-logout {
+  color: var(--destructive, #ef4444);
+}
+
+@media (max-width: 600px) {
+  .notification-popover {
+    position: fixed;
+    top: calc(var(--header-height) + 8px);
+    right: 12px;
+  }
+
+  .profile-popover {
+    right: 0;
+  }
+}
+
 /* --------------------------------------------------
    Sidebar
 -------------------------------------------------- */
@@ -1245,7 +1478,209 @@ a {
   }
 }
 
+/* Application shell popovers */
 
+.topbar-popover-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-popover {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 12px);
+  right: 0;
+  overflow: hidden;
+  width: 320px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 12px 35px rgb(0 0 0 / 12%);
+}
+
+.profile-popover {
+  width: 250px;
+  padding: 8px;
+}
+
+.popover-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.popover-heading > div,
+.popover-user > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popover-heading strong,
+.popover-user strong {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.popover-heading span,
+.popover-user span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.popover-refresh,
+.notification-read-button {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--foreground-secondary);
+  cursor: pointer;
+}
+
+.popover-refresh:hover,
+.notification-read-button:hover {
+  background: var(--surface-hover);
+  color: var(--primary);
+}
+
+.popover-empty {
+  display: flex;
+  min-height: 130px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.notification-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.notification-unread {
+  background: var(--primary-soft);
+}
+
+.notification-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.notification-copy strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.notification-copy p {
+  margin-top: 4px;
+  color: var(--foreground-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notification-copy span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.notification-read-button {
+  flex-shrink: 0;
+}
+
+.popover-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 7px 12px;
+}
+
+.popover-divider {
+  height: 1px;
+  margin: 5px 0;
+  background: var(--border);
+}
+
+.popover-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--foreground-secondary);
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.popover-action:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.popover-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.popover-logout {
+  color: var(--danger);
+}
+
+.popover-logout:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.popover-error {
+  padding: 10px 13px;
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.sidebar-initials {
+  font-size: 10px;
+  font-weight: 750;
+}
+
+@media (max-width: 640px) {
+  .topbar-popover {
+    position: fixed;
+    top: calc(var(--header-height) + 5px);
+    right: 10px;
+    width: min(340px, calc(100vw - 20px));
+  }
+
+  .profile-copy {
+    display: none;
+  }
+
+  .profile-menu {
+    gap: 5px;
+  }
+}
 
 
 /* @import "tailwindcss";
